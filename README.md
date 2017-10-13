@@ -14,6 +14,4 @@ git clone https://github.com/kkelchte/hector_quadrotor
 cd ~/quad_ws && catkin_make
 ```
 
-## Test installation
-
 
