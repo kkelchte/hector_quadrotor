@@ -11,7 +11,7 @@
   <xacro:include filename="$(find turtlebot_description)/urdf/stacks/hexagons.urdf.xacro"/>
   <xacro:include filename="$(find hector_quadrotor_description)/urdf/kinect_camera.urdf.xacro" />
   <xacro:kinect_camera name="camera" parent="base_link">
-    <origin xyz="0.15 0.0 0.2" rpy="0 0 0"/>
+    <origin xyz="0.15 0.0 0.5" rpy="0 0 0"/>
   </xacro:kinect_camera>
 
   <kobuki/>
