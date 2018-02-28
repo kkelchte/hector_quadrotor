@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+    - Base      : kobuki
+    - Stacks    : hexagons
+    - 3d Sensor : astra
+-->    
+<robot name="turtlebot" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find turtlebot_description)/urdf/turtlebot_common_library.urdf.xacro" />
+  <xacro:include filename="$(find kobuki_description)/urdf/kobuki.urdf.xacro" />
+  <xacro:include filename="$(find turtlebot_description)/urdf/stacks/hexagons.urdf.xacro"/>
+  <xacro:include filename="$(find hector_quadrotor_description)/urdf/kinect_camera.urdf.xacro" />
+  <xacro:kinect_camera name="camera" parent="base_link">
+    <origin xyz="0.15 0.0 0.2" rpy="0 0 0"/>
+  </xacro:kinect_camera>
+
+  <kobuki/>
+  <stack_hexagons parent="base_link"/>
+  <sensor_astra parent="base_link"/>
+</robot>
