@@ -11,7 +11,7 @@
       </joint>
       
       <link name="${name}_link">
-	      <inertial>
+        <inertial>
           <mass value="0.01" />
           <origin xyz="0 0 0" rpy="0 0 0" />
           <inertia ixx="0.000000017" ixy="0" ixz="0" iyy="0.000000017" iyz="0" izz="0.000000017" />
@@ -86,7 +86,7 @@
             </image>
             <clip>
               <near>0.01</near>
-	            <far>100</far> <!--changed from 100 to 1000-->
+              <far>100</far> <!--changed from 100 to 1000-->
             </clip>
           </camera>
           <plugin name="${name}_camera_controller" filename="libgazebo_ros_openni_kinect.so">
@@ -99,10 +99,9 @@
             <cameraName>${name}</cameraName>
           </plugin>
         </sensor>
-      	<turnGravityOff>true</turnGravityOff>
-	
-	
+        <turnGravityOff>true</turnGravityOff>
+  
+  
       </gazebo>
     </xacro:macro>
-  </robot>
-  
+</robot>

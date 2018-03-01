@@ -22,20 +22,20 @@
       <origin xyz="0.1 0.0 0.1" rpy="0 0 0"/>
     </xacro:kinect_camera>
     <include filename="$(find hector_quadrotor_description)/urdf/kinect_camera.urdf.xacro" />
-    <xacro:kinect_camera name="kinect_right_30" parent="base_link">
+    <xacro:kinect_camera name="kinect_right" parent="base_link">
       <origin xyz="0.1 0.0 0.1" rpy="0 0 ${-30*M_PI/180}"/>
     </xacro:kinect_camera>
-    <include filename="$(find hector_quadrotor_description)/urdf/kinect_camera.urdf.xacro" />
+    <!-- <include filename="$(find hector_quadrotor_description)/urdf/kinect_camera.urdf.xacro" />
     <xacro:kinect_camera name="kinect_right_60" parent="base_link">
       <origin xyz="0.1 0.0 0.1" rpy="0 0 ${-60*M_PI/180}"/>
-    </xacro:kinect_camera>
+    </xacro:kinect_camera>-->
     <include filename="$(find hector_quadrotor_description)/urdf/kinect_camera.urdf.xacro" />
-    <xacro:kinect_camera name="kinect_left_30" parent="base_link">
+    <xacro:kinect_camera name="kinect_left" parent="base_link">
       <origin xyz="0.1 0.0 0.1" rpy="0 0 ${30*M_PI/180}"/>
     </xacro:kinect_camera>
-    <include filename="$(find hector_quadrotor_description)/urdf/kinect_camera.urdf.xacro" />
+<!--     <include filename="$(find hector_quadrotor_description)/urdf/kinect_camera.urdf.xacro" />
     <xacro:kinect_camera name="kinect_left_60" parent="base_link">
       <origin xyz="0.1 0.0 0.1" rpy="0 0 ${60*M_PI/180}"/>
-    </xacro:kinect_camera>
+    </xacro:kinect_camera> -->
 </robot>
   
