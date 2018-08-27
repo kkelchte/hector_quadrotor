@@ -60,7 +60,6 @@
             <gaussianNoise>0.0</gaussianNoise>
             <frameName>$(arg world_frame)</frameName>
           </plugin>
-
         </gazebo>
   </xacro:macro>
 
