@@ -1,5 +1,6 @@
 //=================================================================================================
-// Copyright (c) 2012, Johannes Meyer, TU Darmstadt
+// Copyright (c) 2012-2016, Institute of Flight Systems and Automatic Control,
+// Technische Universität Darmstadt.
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without
@@ -9,10 +10,9 @@
 //     * Redistributions in binary form must reproduce the above copyright
 //       notice, this list of conditions and the following disclaimer in the
 //       documentation and/or other materials provided with the distribution.
-//     * Neither the name of the Flight Systems and Automatic Control group,
-//       TU Darmstadt, nor the names of its contributors may be used to
-//       endorse or promote products derived from this software without
-//       specific prior written permission.
+//     * Neither the name of hector_quadrotor nor the names of its contributors
+//       may be used to endorse or promote products derived from this software
+//       without specific prior written permission.
 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -30,6 +30,8 @@
 #include <gazebo/common/Events.hh>
 #include <gazebo/physics/physics.hh>
 
+#include <cmath>
+
 static const double DEFAULT_ELEVATION = 0.0;
 static const double DEFAULT_QNH       = 1013.25;
 
@@ -39,7 +41,7 @@ GazeboRosBaro::GazeboRosBaro()
 {
 }
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 // Destructor
 GazeboRosBaro::~GazeboRosBaro()
 {
@@ -51,7 +53,7 @@ GazeboRosBaro::~GazeboRosBaro()
   delete node_handle_;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 // Load the controller
 void GazeboRosBaro::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 {
@@ -129,15 +131,24 @@ void GazeboRosBaro::Reset()
   sensor_model_.reset();
 }
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 // Update the controller
 void GazeboRosBaro::Update()
 {
+#if (GAZEBO_MAJOR_VERSION >= 8)
+  common::Time sim_time = world->SimTime();
+#else
   common::Time sim_time = world->GetSimTime();
+#endif
   double dt = updateTimer.getTimeSinceLastUpdate().Double();
 
+#if (GAZEBO_MAJOR_VERSION >= 8)
+  ignition::math::Pose3d pose = link->WorldPose();
+  double height = sensor_model_(pose.Pos().Z(), dt);
+#else
   math::Pose pose = link->GetWorldPose();
   double height = sensor_model_(pose.pos.z, dt);
+#endif
 
   if (height_publisher_) {
     height_.header.stamp = ros::Time(sim_time.sec, sim_time.nsec);
@@ -148,7 +159,7 @@ void GazeboRosBaro::Update()
   if (altimeter_publisher_) {
     altimeter_.header = height_.header;
     altimeter_.altitude = height + elevation_;
-    altimeter_.pressure = pow((1.0 - altimeter_.altitude / 44330.0), 5.263157) * qnh_;
+    altimeter_.pressure = std::pow((1.0 - altimeter_.altitude / 44330.0), 5.263157) * qnh_;
     altimeter_.qnh = qnh_;
     altimeter_publisher_.publish(altimeter_);
   }

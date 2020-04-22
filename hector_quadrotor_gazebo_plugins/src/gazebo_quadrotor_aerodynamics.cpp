@@ -1,5 +1,6 @@
 //=================================================================================================
-// Copyright (c) 2012, Johannes Meyer, TU Darmstadt
+// Copyright (c) 2012-2016, Institute of Flight Systems and Automatic Control,
+// Technische Universität Darmstadt.
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without
@@ -9,10 +10,9 @@
 //     * Redistributions in binary form must reproduce the above copyright
 //       notice, this list of conditions and the following disclaimer in the
 //       documentation and/or other materials provided with the distribution.
-//     * Neither the name of the Flight Systems and Automatic Control group,
-//       TU Darmstadt, nor the names of its contributors may be used to
-//       endorse or promote products derived from this software without
-//       specific prior written permission.
+//     * Neither the name of hector_quadrotor nor the names of its contributors
+//       may be used to endorse or promote products derived from this software
+//       without specific prior written permission.
 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -34,10 +34,45 @@
 
 #include <geometry_msgs/WrenchStamped.h>
 
+#if (GAZEBO_MAJOR_VERSION >= 8)
+namespace hector_quadrotor_model {
+
+template <typename Message, typename T> static inline void toVector(const Message& msg, ignition::math::Vector3<T>& vector)
+{
+  vector.X() = msg.x;
+  vector.Y() = msg.y;
+  vector.Z() = msg.z;
+}
+
+template <typename Message, typename T> static inline void fromVector(const ignition::math::Vector3<T>& vector, Message& msg)
+{
+  msg.x = vector.X();
+  msg.y = vector.Y();
+  msg.z = vector.Z();
+}
+
+template <typename Message, typename T> static inline void toQuaternion(const Message& msg, ignition::math::Quaternion<T>& quaternion)
+{
+  quaternion.W() = msg.w;
+  quaternion.X() = msg.x;
+  quaternion.Y() = msg.y;
+  quaternion.Z() = msg.z;
+}
+
+template <typename Message, typename T> static inline void fromQuaternion(const ignition::math::Quaternion<T>& quaternion, Message& msg)
+{
+  msg.w = quaternion.W();
+  msg.x = quaternion.X();
+  msg.y = quaternion.Y();
+  msg.z = quaternion.Z();
+}
+
+} // namespace hector_quadrotor_model
+#endif
+
 namespace gazebo {
 
 using namespace common;
-using namespace math;
 using namespace hector_quadrotor_model;
 
 GazeboQuadrotorAerodynamics::GazeboQuadrotorAerodynamics()
@@ -47,7 +82,11 @@ GazeboQuadrotorAerodynamics::GazeboQuadrotorAerodynamics()
 
 GazeboQuadrotorAerodynamics::~GazeboQuadrotorAerodynamics()
 {
+#if (GAZEBO_MAJOR_VERSION < 8)
   event::Events::DisconnectWorldUpdateBegin(updateConnection);
+#endif
+  updateConnection.reset();
+
   if (node_handle_) {
     node_handle_->shutdown();
     if (callback_queue_thread_.joinable())
@@ -56,7 +95,7 @@ GazeboQuadrotorAerodynamics::~GazeboQuadrotorAerodynamics()
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 // Load the controller
 void GazeboQuadrotorAerodynamics::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 {
@@ -123,12 +162,16 @@ void GazeboQuadrotorAerodynamics::Load(physics::ModelPtr _model, sdf::ElementPtr
       boost::bind(&GazeboQuadrotorAerodynamics::Update, this));
 }
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 // Update the controller
 void GazeboQuadrotorAerodynamics::Update()
 {
   // Get simulator time
+#if (GAZEBO_MAJOR_VERSION >= 8)
+  Time current_time = world->SimTime();
+#else
   Time current_time = world->GetSimTime();
+#endif
   Time dt = current_time - last_time_;
   last_time_ = current_time;
   if (dt <= 0.0) return;
@@ -138,19 +181,32 @@ void GazeboQuadrotorAerodynamics::Update()
 
   // fill input vector u for drag model
   geometry_msgs::Quaternion orientation;
+#if (GAZEBO_MAJOR_VERSION >= 8)
+  fromQuaternion(link->WorldPose().Rot(), orientation);
+#else
   fromQuaternion(link->GetWorldPose().rot, orientation);
+#endif
   model_.setOrientation(orientation);
 
   geometry_msgs::Twist twist;
+#if (GAZEBO_MAJOR_VERSION >= 8)
+  fromVector(link->WorldLinearVel(), twist.linear);
+  fromVector(link->WorldAngularVel(), twist.angular);
+#else
   fromVector(link->GetWorldLinearVel(), twist.linear);
   fromVector(link->GetWorldAngularVel(), twist.angular);
+#endif
   model_.setTwist(twist);
 
   // update the model
   model_.update(dt.Double());
 
   // get wrench from model
-  Vector3 force, torque;
+#if (GAZEBO_MAJOR_VERSION >= 8)
+  ignition::math::Vector3d force, torque;
+#else
+  math::Vector3 force, torque;
+#endif
   toVector(model_.getWrench().force, force);
   toVector(model_.getWrench().torque, torque);
 
@@ -165,17 +221,21 @@ void GazeboQuadrotorAerodynamics::Update()
 
   // set force and torque in gazebo
   link->AddRelativeForce(force);
+#if (GAZEBO_MAJOR_VERSION >= 8)
+  link->AddRelativeTorque(torque - link->GetInertial()->CoG().Cross(force));
+#else
   link->AddRelativeTorque(torque - link->GetInertial()->GetCoG().Cross(force));
+#endif
 }
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 // Reset the controller
 void GazeboQuadrotorAerodynamics::Reset()
 {
   model_.reset();
 }
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 // custom callback queue thread
 void GazeboQuadrotorAerodynamics::QueueThread()
 {

@@ -1,5 +1,6 @@
 //=================================================================================================
-// Copyright (c) 2013, Johannes Meyer and contributors, Technische Universitat Darmstadt
+// Copyright (c) 2012-2016, Institute of Flight Systems and Automatic Control,
+// Technische Universität Darmstadt.
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without
@@ -9,10 +10,9 @@
 //     * Redistributions in binary form must reproduce the above copyright
 //       notice, this list of conditions and the following disclaimer in the
 //       documentation and/or other materials provided with the distribution.
-//     * Neither the name of the Flight Systems and Automatic Control group,
-//       TU Darmstadt, nor the names of its contributors may be used to
-//       endorse or promote products derived from this software without
-//       specific prior written permission.
+//     * Neither the name of hector_quadrotor nor the names of its contributors
+//       may be used to endorse or promote products derived from this software
+//       without specific prior written permission.
 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -114,20 +114,20 @@ template <typename Message, typename Vector> static inline void fromVector(const
   msg.z = vector.z;
 }
 
-template <typename Message, typename Quaternion> static inline void toQuaternion(const Message& msg, Quaternion& vector)
+template <typename Message, typename Quaternion> static inline void toQuaternion(const Message& msg, Quaternion& quaternion)
 {
-  vector.w = msg.w;
-  vector.x = msg.x;
-  vector.y = msg.y;
-  vector.z = msg.z;
+  quaternion.w = msg.w;
+  quaternion.x = msg.x;
+  quaternion.y = msg.y;
+  quaternion.z = msg.z;
 }
 
-template <typename Message, typename Quaternion> static inline void fromQuaternion(const Quaternion& vector, Message& msg)
+template <typename Message, typename Quaternion> static inline void fromQuaternion(const Quaternion& quaternion, Message& msg)
 {
-  msg.w = vector.w;
-  msg.x = vector.x;
-  msg.y = vector.y;
-  msg.z = vector.z;
+  msg.w = quaternion.w;
+  msg.x = quaternion.x;
+  msg.y = quaternion.y;
+  msg.z = quaternion.z;
 }
 
 static inline geometry_msgs::Vector3 operator+(const geometry_msgs::Vector3& a, const geometry_msgs::Vector3& b)
