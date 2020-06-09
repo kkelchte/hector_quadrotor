@@ -3,7 +3,7 @@
 <launch>
   <arg name="name" default="quadrotor"/>
   <arg name="model" default="$(find hector_quadrotor_description)/urdf/quadrotor.gazebo.xacro"/>
-    <arg name="controllers" default="
+  <arg name="controllers" default="
     controller/position
     controller/velocity
     controller/attitude
