@@ -19,7 +19,7 @@
   <arg name="Y" default="0.0"/>
 
   <arg name="use_ground_truth_for_tf" default="true" />
-  <arg name="use_ground_truth_for_control" default="true" />
+  <arg name="use_ground_truth_for_control" default="false" />
   <arg name="use_pose_estimation" if="$(arg use_ground_truth_for_control)" default="false"/>
   <arg name="use_pose_estimation" unless="$(arg use_ground_truth_for_control)" default="true"/>
 
